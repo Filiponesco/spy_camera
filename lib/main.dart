@@ -30,10 +30,11 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
+class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     var timerService = TimerService.of(context);
+
     return DefaultTabController(
         length: 2,
         child: new Scaffold(
@@ -46,8 +47,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
               Tab(
                 icon: Icon(Icons.mic),
               ),
-            ]
-            ),
+            ]),
           ),
           body: TabBarView(children: [
             new Container(
@@ -57,15 +57,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text('Cam time: ${timerService.currentDuration.inHours}h : ${timerService.currentDuration.inMinutes}m : ${timerService.currentDuration.inSeconds}s'),
+                      Text(
+                          'Cam time: ${timerService.currentDuration
+                              .inHours % 60}h : ${timerService.currentDuration
+                              .inMinutes % 60}m : ${timerService.currentDuration
+                              .inSeconds % 60}s'),
                       RaisedButton(
-                        onPressed: !timerService.isRunning
-                            ? timerService.start
-                            : timerService.stop,
-                        child: Text(!timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
+                        onPressed: () {
+                          !timerService.isRunning
+                              ? timerService.start()
+                              : timerService.stop();
+                        },
+                        child: Text(
+                            !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
                       ),
                       RaisedButton(
-                        onPressed: timerService.reset,
+                        onPressed: () {
+                          timerService.reset();
+                        },
                         child: Text('Reset Cam'),
                       )
                     ],
@@ -80,16 +89,24 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin{
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text('Mic time: ${timerService.currentDuration.inHours}h : ${timerService.currentDuration.inMinutes}m : ${timerService.currentDuration.inSeconds}s'),
+                      Text(
+                          'Mic time: ${timerService.currentDuration
+                              .inHours % 60}h : ${timerService.currentDuration
+                              .inMinutes % 60}m : ${timerService.currentDuration
+                              .inSeconds % 60}s'),
                       RaisedButton(
-                          onPressed: !timerService.isRunning
-                              ? timerService.start
-                              : timerService.stop,
-                          child:
-                              Text(!timerService.isRunning ? 'Start Mic' : 'Stop Mic')
-                      ),
+                          onPressed: () {
+                            !timerService.isRunning
+                                ? timerService.start()
+                                : timerService.stop();
+                          },
+                          child: Text(!timerService.isRunning
+                              ? 'Start Mic'
+                              : 'Stop Mic')),
                       RaisedButton(
-                        onPressed: timerService.reset,
+                        onPressed: () {
+                          timerService.reset();
+                        },
                         child: Text('Reset Mic'),
                       )
                     ],
