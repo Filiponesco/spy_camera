@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import 'pages/settings_page.dart';
 import 'timer.dart';
 
 void main() {
@@ -60,33 +61,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(type);
   }
+
   Future<bool> setSortingOrder(String type, String value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if(type == 'title'){
+    if (type == 'title') {
       title = value;
-    } else if(type == 'text'){
+    } else if (type == 'text') {
       text = value;
     }
     return prefs.setString(type, value);
   }
+
   showNotification(int id, String title, String text) async {
     var android = new AndroidNotificationDetails(
-        'channel id',
-        'channel NAME',
-        'CHANNEL DESCRIPTION',
-        priority: Priority.High,
-        importance: Importance.Max
-    );
+        'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
+        priority: Priority.High, importance: Importance.Max);
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
-    await flutterLocalNotificationsPlugin.show(
-        id,
-        title,
-        text,
-        platform,
+    await flutterLocalNotificationsPlugin.show(id, title, text, platform,
         payload: 'payload');
   }
-  Future onSelectNotification(String payload) { // tu będzie się dtopowalo nagrywanie gdzy się kliknie notyfikacje
+
+  Future onSelectNotification(String payload) {
+    // tu będzie się dtopowalo nagrywanie gdzy się kliknie notyfikacje
     showDialog(
       context: context,
       builder: (_) => new AlertDialog(
@@ -101,151 +98,94 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     var timerService = TimerService.of(context);
 
     return DefaultTabController(
-        length: 2,
-        child: new Scaffold(
-          appBar: AppBar(
-            title: Text("Spy Camera"),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.settings),
-                tooltip: 'Settings',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => new AlertDialog(
-                      title: new Text('Settings'),
-                      content: SingleChildScrollView(
-                        child: Column(
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Container(
-                                  margin: const EdgeInsets.all(10.0),
-                                  child:Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: new Text("Notyfication"),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.all(5.0),
-                                  child:TextField(
-                                    onChanged: (text) {
-                                      setSortingOrder('title', text);
-                                    },
-                                    controller: titleController,
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(15.0)
-                                        ),
-                                        hintText: "Title"
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.all(5.0),
-                                  child:TextField(
-                                    onChanged: (text) {
-                                      setSortingOrder('text', text);
-                                    },
-                                    controller: textController,
-                                    decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(15.0)
-                                        ),
-                                        hintText: "Text"
-                                    ),
-                                  ),
-                                ),
-                                Divider(
-                                  color: Colors.black,
-                                  height: 36,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
+      length: 2,
+      child: new Scaffold(
+        appBar: AppBar(
+          title: Text("Spy Camera"),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.settings),
+              tooltip: 'Settings',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SettingsRoute()),
+                );
+              },
+            ),
+          ],
+          bottom: TabBar(tabs: [
+            Tab(
+              icon: Icon(Icons.videocam),
+            ),
+            Tab(
+              icon: Icon(Icons.mic),
+            ),
+          ]),
+        ),
+        body: TabBarView(children: [
+          new Container(
+            child: AnimatedBuilder(
+              animation: timerService,
+              builder: (context, child) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                        'Cam time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
+                    RaisedButton(
+                      onPressed: () {
+                        showNotification(
+                            0, title, text); // funkcja do powiadomienia
+                        !timerService.isRunning
+                            ? timerService.start()
+                            : timerService.stop();
+                      },
+                      child: Text(
+                          !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
                     ),
-                  );
-                },
-              ),
-            ],
-            bottom: TabBar(tabs: [
-              Tab(
-                icon: Icon(Icons.videocam),
-              ),
-              Tab(
-                icon: Icon(Icons.mic),
-              ),
-            ]),
+                    RaisedButton(
+                      onPressed: () {
+                        timerService.reset();
+                      },
+                      child: Text('Reset Cam'),
+                    )
+                  ],
+                );
+              },
+            ),
           ),
-          body: TabBarView(children: [
-            new Container(
-              child: AnimatedBuilder(
-                animation: timerService,
-                builder: (context, child) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                          'Cam time: ${timerService.currentDuration
-                              .inHours % 60}h : ${timerService.currentDuration
-                              .inMinutes % 60}m : ${timerService.currentDuration
-                              .inSeconds % 60}s'),
-                      RaisedButton(
+          new Container(
+            child: AnimatedBuilder(
+              animation: timerService,
+              builder: (context, child) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                        'Mic time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
+                    RaisedButton(
                         onPressed: () {
-                          showNotification(0, title, text); // funkcja do powiadomienia
                           !timerService.isRunning
                               ? timerService.start()
                               : timerService.stop();
                         },
-                        child: Text(
-                            !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
-                      ),
-                      RaisedButton(
-                        onPressed: () {
-                          timerService.reset();
-                        },
-                        child: Text('Reset Cam'),
-                      )
-                    ],
-                  );
-                },
-              ),
+                        child: Text(!timerService.isRunning
+                            ? 'Start Mic'
+                            : 'Stop Mic')),
+                    RaisedButton(
+                      onPressed: () {
+                        timerService.reset();
+                      },
+                      child: Text('Reset Mic'),
+                    )
+                  ],
+                );
+              },
             ),
-            new Container(
-              child: AnimatedBuilder(
-                animation: timerService,
-                builder: (context, child) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                          'Mic time: ${timerService.currentDuration
-                              .inHours % 60}h : ${timerService.currentDuration
-                              .inMinutes % 60}m : ${timerService.currentDuration
-                              .inSeconds % 60}s'),
-                      RaisedButton(
-                          onPressed: () {
-                            !timerService.isRunning
-                                ? timerService.start()
-                                : timerService.stop();
-                          },
-                          child: Text(!timerService.isRunning
-                              ? 'Start Mic'
-                              : 'Stop Mic')),
-                      RaisedButton(
-                        onPressed: () {
-                          timerService.reset();
-                        },
-                        child: Text('Reset Mic'),
-                      )
-                    ],
-                  );
-                },
-              ),
-            ),
-          ]),
-        ));
+          ),
+        ]),
+      ),
+    );
   }
 }
