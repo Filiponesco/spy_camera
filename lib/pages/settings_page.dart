@@ -112,7 +112,22 @@ class SettingsRoute extends StatelessWidget {
       body: FutureBuilder(
         future: SharedPreferences.getInstance(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done)
+          if (snapshot.connectionState == ConnectionState.done) {
+            if(!snapshot.data.containsKey('vibration_start'))
+              snapshot.data.setBool('vibration_start', false);
+
+            if(!snapshot.data.containsKey('vibration_end'))
+              snapshot.data.setBool('vibration_end', false);
+
+            if(!snapshot.data.containsKey('notification_icon'))
+              snapshot.data.setInt('notification_icon', 57744);
+
+            if(!snapshot.data.containsKey('notification_title'))
+              snapshot.data.setString('notification_title', "Default title");
+
+            if(!snapshot.data.containsKey('notification_description'))
+              snapshot.data.setString('notification_description', "Default description");
+
             return ListView(
               children: ListTile.divideTiles(context: context, tiles: [
                 SettingsContainer(
@@ -133,7 +148,8 @@ class SettingsRoute extends StatelessWidget {
                   icon: Icons.image,
                   title: "Notification icon",
                   additionalIcon:
-                      Icon(IconData(snapshot.data.getInt("notification_icon"), fontFamily: 'MaterialIcons')),
+                  Icon(IconData(snapshot.data.getInt("notification_icon"),
+                      fontFamily: 'MaterialIcons')),
                   onTap: changeIcon,
                   settingName: "notification_icon",
                 ),
@@ -147,12 +163,14 @@ class SettingsRoute extends StatelessWidget {
                 SettingsContainer(
                   icon: Icons.description,
                   title: "Notification description",
-                  description: snapshot.data.getString("notification_description"),
+                  description: snapshot.data.getString(
+                      "notification_description"),
                   onTap: changeDescription,
                   settingName: "notification_description",
                 ),
               ]).toList(),
             );
+          }
           else
             return Center();
         },
