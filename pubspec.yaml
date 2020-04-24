@@ -17,6 +17,7 @@ environment:
   sdk: ">=2.3.0 <3.0.0"
 
 dependencies:
+  vibration: ^1.2.4
   camera:
   path_provider: ^1.6.7
   provider:

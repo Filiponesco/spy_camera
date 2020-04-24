@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:vibration/vibration.dart';
 // singleton
 class CameraManagement{
   static final CameraManagement _cameraManagement = CameraManagement._internal();
@@ -12,6 +14,7 @@ class CameraManagement{
   CameraController controller;
   bool isReady = false;
   bool isRecording = false;
+  SharedPreferences _prefs;
 
   Future<void> setupCameras() async {
     try{
@@ -19,6 +22,7 @@ class CameraManagement{
         List<CameraDescription> cameras = await availableCameras();
         controller = CameraController(cameras[0], ResolutionPreset.medium);
         await controller.initialize();
+        _prefs = await SharedPreferences.getInstance();
         isReady = true;
       }
     } on CameraException catch(e){
@@ -30,10 +34,14 @@ class CameraManagement{
   Future<void> startVideoRecording() async{
     try{
       if(!isRecording) {
-        String path = await _getVideoPath;
-        await controller.startVideoRecording(path);
-        isRecording = true;
-        print("Cam: start");
+
+        if(_prefs.getBool('vibration_start')) {
+          _vibrate(50);
+        }
+          String path = await _getVideoPath;
+          await controller.startVideoRecording(path);
+          isRecording = true;
+          print("Cam: start");
       }
     } on CameraException catch(e){
       _showCameraException(e);
@@ -44,6 +52,9 @@ class CameraManagement{
     try{
       if (!controller.value.isRecordingVideo) {
         return null;
+      }
+      if(_prefs.getBool('vibration_end')) {
+        _vibrate(200);
       }
       await controller.stopVideoRecording();
       isRecording = false;
@@ -59,6 +70,11 @@ class CameraManagement{
   }
   void _showCameraException(CameraException e){
     print("${e.code} ${e.description}");
+  }
+  void _vibrate(int duration) async {
+    if (await Vibration.hasVibrator()) {
+    Vibration.vibrate(duration: duration);
+    }
   }
 
 }
