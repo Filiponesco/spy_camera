@@ -89,14 +89,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future onSelectNotification(String payload) {
-    // tu będzie się dtopowalo nagrywanie gdzy się kliknie notyfikacje
-    showDialog(
+    // tu będzie się stopowalo nagrywanie gdzy się kliknie notyfikacje
+    _cam.stopVideoRecording();
+/*    showDialog(
       context: context,
       builder: (_) => new AlertDialog(
         title: new Text('Notification'),
         content: new Text('Notyfication click'),
       ),
-    );
+    );*/
   }
 
   @override
@@ -139,6 +140,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                       print("Reset camera");
                       return CameraApp(_cam);
                     }),
+                SizedBox(height: 10),
                 AnimatedBuilder(
                   animation: timerService,
                   builder: (context, child) {
@@ -201,7 +203,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         timerService.reset();
                       },
                       child: Text('Reset Mic'),
-                    )
+                    ),
                   ],
                 );
               },
@@ -210,5 +212,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ]),
       ),
     );
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _cam.controller.dispose();
   }
 }
