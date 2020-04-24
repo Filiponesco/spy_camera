@@ -21,6 +21,8 @@ dependencies:
   camera:
   path_provider: ^1.6.7
   provider:
+  downloads_path_provider:
+  intl:
   video_player: ^0.10.9+1
   toast: ^0.1.5
   flutter:

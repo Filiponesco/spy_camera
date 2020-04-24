@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:downloads_path_provider/downloads_path_provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
@@ -63,10 +66,19 @@ class CameraManagement{
     }
   }
   Future<String> get _getVideoPath async {
-    final Directory extDir = await getApplicationDocumentsDirectory();
+    /*final Directory extDir = await getApplicationDocumentsDirectory();
     final String dirPath = '${extDir.path}/media';
     await Directory(dirPath).create(recursive: true);
-    return '$dirPath/${DateTime.now()}.mp4';
+    return '$dirPath/${DateTime.now()}.mp4';*/
+    final directory = await DownloadsPathProvider.downloadsDirectory;
+    var now = new DateTime.now();
+    await initializeDateFormatting('pl_PL', null);
+    var formatterData = new DateFormat('yyyy-MM-dd-hh-mm-ss');
+    String formattedData = formatterData.format(now);
+
+    final path = '${directory.path}/$formattedData.mp4';
+    print("Save movie to: $path");
+    return path;
   }
   void _showCameraException(CameraException e){
     print("${e.code} ${e.description}");
