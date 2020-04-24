@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:spycamera/widgets/camera_view.dart';
 
 import 'pages/settings_page.dart';
 import 'timer.dart';
+import 'widgets/camera_view.dart';
 
 void main() {
   final timerService = TimerService();
@@ -128,29 +131,35 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             child: AnimatedBuilder(
               animation: timerService,
               builder: (context, child) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                        'Cam time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
-                    RaisedButton(
-                      onPressed: () {
-                        showNotification(
-                            0, title, text); // funkcja do powiadomienia
-                        !timerService.isRunning
-                            ? timerService.start()
-                            : timerService.stop();
-                      },
-                      child: Text(
-                          !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
-                    ),
-                    RaisedButton(
-                      onPressed: () {
-                        timerService.reset();
-                      },
-                      child: Text('Reset Cam'),
-                    )
-                  ],
+                return ChangeNotifierProvider<ValueNotifier<bool>>(
+                  create: (context) => ValueNotifier<bool>(false),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      CameraApp(),
+                      Text(
+                          'Cam time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
+                      RaisedButton(
+                        onPressed: () {
+                          showNotification(
+                              0, title, text); // funkcja do powiadomienia
+                          !timerService.isRunning
+                              ? timerService.start()
+                              : timerService.stop();
+                          var isRecording = Provider.of<ValueNotifier<bool>>(context, listen: false);
+                          isRecording.value = !isRecording.value;
+                        },
+                        child: Text(
+                            !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
+                      ),
+                      RaisedButton(
+                        onPressed: () {
+                          timerService.reset();
+                        },
+                        child: Text('Reset Cam'),
+                      ),
+                    ],
+                  ),
                 );
               },
             ),
