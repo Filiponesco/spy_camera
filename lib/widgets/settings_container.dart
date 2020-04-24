@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsContainer extends StatefulWidget {
   final IconData icon;
@@ -8,6 +9,7 @@ class SettingsContainer extends StatefulWidget {
   final bool switchState;
   final Icon additionalIcon;
   final Function onTap;
+  final String settingName;
 
   SettingsContainer(
       {Key key,
@@ -17,7 +19,8 @@ class SettingsContainer extends StatefulWidget {
       this.isSwitch = false,
       this.switchState,
       this.additionalIcon,
-      this.onTap})
+      this.onTap,
+      this.settingName})
       : super(key: key);
 
   @override
@@ -31,19 +34,20 @@ class _SettingsContainerState extends State<SettingsContainer> {
   String _desc;
   Widget _additionalIcon;
 
-  void switchStateChanged(bool state) {
+  void switchStateChanged(bool state) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(widget.settingName, state);
     setState(() {
       _switch = state;
     });
   }
 
   void descriptionChanged() async {
-    var result = await widget.onTap(context);
+    var result = await widget.onTap(context, widget.settingName);
     setState(() {
       if (result is String && result.length > 0)
         _desc = result;
-      else if (result is Icon)
-        _additionalIcon = result;
+      else if (result is Icon) _additionalIcon = result;
     });
   }
 
@@ -60,8 +64,7 @@ class _SettingsContainerState extends State<SettingsContainer> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (widget.onTap != null)
-          descriptionChanged();
+        if (widget.onTap != null) descriptionChanged();
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(
