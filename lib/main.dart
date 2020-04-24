@@ -89,7 +89,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future onSelectNotification(String payload) {
-    // tu będzie się stopowalo nagrywanie gdzy się kliknie notyfikacje
+    var timerService = TimerService.of(context);
+    if (timerService.isRunning) {
+      timerService.stop();
+    }
     _cam.stopVideoRecording();
 /*    showDialog(
       context: context,
