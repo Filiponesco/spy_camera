@@ -1,11 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:spycamera/widgets/camera_view.dart';
 
 import 'pages/settings_page.dart';
 import 'timer.dart';
+import 'widgets/camera_view.dart';
+import 'camera_management.dart';
 
 void main() {
   final timerService = TimerService();
@@ -35,9 +39,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
+  CameraManagement _cam;
   @override
   void initState() {
     super.initState();
+    _cam = new CameraManagement();
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
     var iOS = new IOSInitializationSettings();
@@ -83,14 +89,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future onSelectNotification(String payload) {
-    // tu będzie się dtopowalo nagrywanie gdzy się kliknie notyfikacje
-    showDialog(
+    // tu będzie się stopowalo nagrywanie gdzy się kliknie notyfikacje
+    _cam.stopVideoRecording();
+/*    showDialog(
       context: context,
       builder: (_) => new AlertDialog(
         title: new Text('Notification'),
         content: new Text('Notyfication click'),
       ),
-    );
+    );*/
   }
 
   @override
@@ -125,34 +132,52 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ),
         body: TabBarView(children: [
           new Container(
-            child: AnimatedBuilder(
-              animation: timerService,
-              builder: (context, child) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                        'Cam time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
-                    RaisedButton(
-                      onPressed: () {
-                        showNotification(
-                            0, title, text); // funkcja do powiadomienia
-                        !timerService.isRunning
-                            ? timerService.start()
-                            : timerService.stop();
-                      },
-                      child: Text(
-                          !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
-                    ),
-                    RaisedButton(
-                      onPressed: () {
-                        timerService.reset();
-                      },
-                      child: Text('Reset Cam'),
-                    )
-                  ],
-                );
-              },
+            child: Column(
+              children: <Widget>[
+                FutureBuilder(
+                    future: _cam.setupCameras(),
+                    builder: (BuildContext context, _) {
+                      print("Reset camera");
+                      return CameraApp(_cam);
+                    }),
+                SizedBox(height: 10),
+                AnimatedBuilder(
+                  animation: timerService,
+                  builder: (context, child) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                            'Cam time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
+                        RaisedButton(
+                          onPressed: () {
+                            showNotification(
+                                0, title, text); // funkcja do powiadomienia
+                            !timerService.isRunning
+                                ? timerService.start()
+                                : timerService.stop();
+                            if (_cam.isRecording) {
+                              _cam.stopVideoRecording();
+                              print("Stop recording");
+                            } else {
+                              _cam.startVideoRecording();
+                              print("Start recording");
+                            }
+                          },
+                          child: Text(
+                              !timerService.isRunning ? 'Start Cam' : 'Stop Cam'),
+                        ),
+                        RaisedButton(
+                          onPressed: () {
+                            timerService.reset();
+                          },
+                          child: Text('Reset Cam'),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           new Container(
@@ -178,7 +203,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         timerService.reset();
                       },
                       child: Text('Reset Mic'),
-                    )
+                    ),
                   ],
                 );
               },
@@ -187,5 +212,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ]),
       ),
     );
+  }
+  @override
+  void dispose() {
+    super.dispose();
+    _cam.controller.dispose();
   }
 }
