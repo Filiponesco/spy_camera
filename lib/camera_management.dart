@@ -9,7 +9,8 @@ import 'package:vibration/vibration.dart';
 // singleton
 class CameraManagement{
   static final CameraManagement _cameraManagement = CameraManagement._internal();
-  factory CameraManagement(){
+  factory CameraManagement(Function(String message) informCallback){
+    _cameraManagement._informUICallback = informCallback;
     return _cameraManagement;
   }
   CameraManagement._internal();
@@ -18,6 +19,7 @@ class CameraManagement{
   bool isReady = false;
   bool isRecording = false;
   SharedPreferences _prefs;
+  Function(String message) _informUICallback;
 
   Future<void> setupCameras() async {
     try{
@@ -29,26 +31,32 @@ class CameraManagement{
         isReady = true;
       }
     } on CameraException catch(e){
-        _showCameraException(e);
+        _showAndThrowCameraException(e);
         return null;
+    } catch(e){
+      print("Camera - setup $e");
     }
     print("setup cameras");
   }
   Future<void> startVideoRecording() async{
     try{
       if(!isRecording) {
-
-        if(_prefs.getBool('vibration_start')) {
-          _vibrate(50);
+        if(_prefs.getBool('vibration_start') != null) {
+          if (_prefs.getBool('vibration_start')) {
+            _vibrate(50);
+          }
         }
           String path = await _getVideoPath;
           await controller.startVideoRecording(path);
           isRecording = true;
           print("Cam: start");
+        _informUICallback("Recording...");
       }
     } on CameraException catch(e){
-      _showCameraException(e);
+      _showAndThrowCameraException(e);
       return null;
+    } catch(e){
+      print("Camera - start $e");
     }
   }
   Future<void> stopVideoRecording() async {
@@ -56,13 +64,17 @@ class CameraManagement{
       if (!controller.value.isRecordingVideo) {
         return null;
       }
-      if(_prefs.getBool('vibration_end')) {
-        _vibrate(200);
+      if(_prefs.getBool('vibration_end') != null) {
+        if (_prefs.getBool('vibration_end')) {
+          _vibrate(200);
+        }
       }
       await controller.stopVideoRecording();
       isRecording = false;
+      _informUICallback("Movie saved to download folder");
     } on CameraException catch(e){
-      _showCameraException(e);
+      _showAndThrowCameraException(e);
+      return null; // finish
     }
   }
   Future<String> get _getVideoPath async {
@@ -80,12 +92,17 @@ class CameraManagement{
     print("Save movie to: $path");
     return path;
   }
-  void _showCameraException(CameraException e){
+  void _showAndThrowCameraException(CameraException e){
     print("${e.code} ${e.description}");
+    throw e;
   }
   void _vibrate(int duration) async {
     if (await Vibration.hasVibrator()) {
     Vibration.vibrate(duration: duration);
+    }
+    else {
+      print("Vibrator no mounted on device");
+      _informUICallback("Vibrator no mounted on device");
     }
   }
 
