@@ -44,6 +44,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   CameraManagement _cam;
   bool CamIsRunning = false;
   bool MicIsRunning = false;
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  String title, text;
 
   @override
   void initState() {
@@ -59,34 +61,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     flutterLocalNotificationsPlugin.initialize(initSetttings,
         onSelectNotification: onSelectNotification);
     setState(() {
-      getSortingOrder('title').then((val) => titleController.text = val);
-      getSortingOrder('text').then((val) => textController.text = val);
-      getSortingOrder('title').then((val) => title = val);
-      getSortingOrder('text').then((val) => text = val);
+      getSortingOrder('notification_title').then((val) => title = val);
+      getSortingOrder('notification_description').then((val) => text = val);
     });
   }
 
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  String title, text;
-  final titleController = TextEditingController();
-  final textController = TextEditingController();
-
-  Future<String> getSortingOrder(String type) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString(type);
-  }
-
-  Future<bool> setSortingOrder(String type, String value) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (type == 'title') {
-      title = value;
-    } else if (type == 'text') {
-      text = value;
-    }
-    return prefs.setString(type, value);
-  }
 
   showNotification(int id, String title, String text) async {
+
+    title = await getSortingOrder('notification_title');
+    text = await getSortingOrder('notification_description');
     var android = new AndroidNotificationDetails(
         'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
         priority: Priority.High, importance: Importance.Max);
@@ -94,6 +78,14 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     var platform = new NotificationDetails(android, iOS);
     await flutterLocalNotificationsPlugin.show(id, title, text, platform,
         payload: 'payload');
+  }
+  hideNotification() async {
+    var android = new AndroidNotificationDetails(
+        'channel id', 'channel NAME', 'CHANNEL DESCRIPTION',
+        priority: Priority.High, importance: Importance.Max);
+    var iOS = new IOSNotificationDetails();
+    var platform = new NotificationDetails(android, iOS);
+    await flutterLocalNotificationsPlugin.cancel(0);
   }
 
   Future onSelectNotification(String payload) {
@@ -104,6 +96,20 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
     _stopRecordingOrShowError();
   }
+  Future<String> getSortingOrder(String type) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(type);
+  }
+  Future<bool> setSortingOrder(String type, String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (type == 'title') {
+      title = value;
+    } else if (type == 'text') {
+      text = value;
+    }
+    return prefs.setString(type, value);
+  }
+
   void _showToast(String message){
     Toast.show(message, context, duration: Toast.LENGTH_LONG, gravity:  Toast.BOTTOM);
   }
@@ -176,17 +182,16 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       .inSeconds % 60}s'),
                               RaisedButton(
                                 onPressed: () {
-                                  showNotification(
-                                      0, title,
-                                      text); // funkcja do powiadomienia
                                   !timerService.isRunning
                                       ? timerService.start()
                                       : timerService.stop();
                                   if (_cam.isRecording) {
                                     _stopRecordingOrShowError();
+                                    hideNotification();
                                     print("Stop recording");
                                   } else {
                                     _startRecordingOrShowError();
+                                    showNotification(0, title,text);
                                     CamIsRunning = true;
                                     print("Start recording");
                                   }
@@ -198,6 +203,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                               RaisedButton(
                                 onPressed: () {
                                   timerService.reset();
+                                  hideNotification();
                                   CamIsRunning = false;
                                 },
                                 child: Text('Reset Cam'),
