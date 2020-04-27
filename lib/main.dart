@@ -1,7 +1,6 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -89,12 +88,12 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   Future onSelectNotification(String payload) {
-    var timerService = TimerService.of(context);
-    if (timerService.isRunning) {
+    //var timerService = TimerService.of(context);
+    /*if (timerService.isRunning) {
       CamIsRunning = true;
       timerService.stop();
-    }
-    _stopRecordingOrShowError();
+    }*/
+    _stopRecordTimeNotifyOrShowError();
   }
   Future<String> getSortingOrder(String type) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -126,13 +125,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
             )
     );
   }
-  void _startRecordingOrShowError(){
-    _cam.startVideoRecording().catchError((error) =>
-        _showAlertDialog(error.code, error.description));
+  void _startRecordTimeNotifyOrShowError() async{
+    try{
+      await _cam.startVideoRecording();
+      var timerService = TimerService.of(context);
+      timerService.start();
+      showNotification(0, title,text);
+      CamIsRunning = true;
+    } on CameraException catch(error){
+      _showAlertDialog(error.code, error.description);
+    }
   }
-  void _stopRecordingOrShowError(){
-    _cam.stopVideoRecording().catchError((error) =>
-        _showAlertDialog(error.code, error.description));
+  void _stopRecordTimeNotifyOrShowError() async{
+    try{
+      await _cam.stopVideoRecording();
+      var timerService = TimerService.of(context);
+      if (timerService.isRunning) {
+        CamIsRunning = true;
+        timerService.stop();
+      }
+      hideNotification();
+    } on CameraException catch(error){
+      _showAlertDialog(error.code, error.description);
+    }
   }
 
   @override
@@ -182,17 +197,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                       .inSeconds % 60}s'),
                               RaisedButton(
                                 onPressed: () {
-                                  !timerService.isRunning
+                                  /*!timerService.isRunning
                                       ? timerService.start()
-                                      : timerService.stop();
+                                      : timerService.stop();*/
                                   if (_cam.isRecording) {
-                                    _stopRecordingOrShowError();
-                                    hideNotification();
+                                    _stopRecordTimeNotifyOrShowError();
+                                    /*hideNotification();*/
                                     print("Stop recording");
                                   } else {
-                                    _startRecordingOrShowError();
-                                    showNotification(0, title,text);
-                                    CamIsRunning = true;
+                                    _startRecordTimeNotifyOrShowError();
+                                    /*showNotification(0, title,text);
+                                    CamIsRunning = true;*/
                                     print("Start recording");
                                   }
                                 },

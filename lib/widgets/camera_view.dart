@@ -21,7 +21,7 @@ class _CameraAppState extends State<CameraApp> {
       return Container();
     } else{
       return AspectRatio(
-      aspectRatio: 1, // default: controller.value.aspectRatio
+      aspectRatio: widget.cam.controller.value.aspectRatio, // default: controller.value.aspectRatio
           child: CameraPreview(widget.cam.controller));
     }
     }
