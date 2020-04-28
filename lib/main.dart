@@ -4,12 +4,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:spycamera/widgets/camera_view.dart';
 import 'package:toast/toast.dart';
 
 import 'pages/settings_page.dart';
 import 'timer.dart';
-import 'widgets/camera_view.dart';
 import 'camera_management.dart';
 
 void main() {

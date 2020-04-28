@@ -3,7 +3,6 @@ import 'package:camera/camera.dart';
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 // singleton

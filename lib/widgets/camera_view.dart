@@ -1,9 +1,5 @@
-import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 import '../camera_management.dart';
 
 class CameraApp extends StatefulWidget {
@@ -21,7 +17,7 @@ class _CameraAppState extends State<CameraApp> {
       return Container();
     } else{
       return AspectRatio(
-      aspectRatio: widget.cam.controller.value.aspectRatio, // default: controller.value.aspectRatio
+      aspectRatio: widget.cam.controller.value.aspectRatio,
           child: CameraPreview(widget.cam.controller));
     }
     }
