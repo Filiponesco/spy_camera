@@ -113,23 +113,34 @@ class SettingsRoute extends StatelessWidget {
         future: SharedPreferences.getInstance(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if(!snapshot.data.containsKey('vibration_start'))
+            if (!snapshot.data.containsKey('vibration_start'))
               snapshot.data.setBool('vibration_start', false);
 
-            if(!snapshot.data.containsKey('vibration_end'))
+            if (!snapshot.data.containsKey('vibration_end'))
               snapshot.data.setBool('vibration_end', false);
 
-            if(!snapshot.data.containsKey('notification_icon'))
+            if (!snapshot.data.containsKey('notification_icon'))
               snapshot.data.setInt('notification_icon', 57744);
 
-            if(!snapshot.data.containsKey('notification_title'))
+            if (!snapshot.data.containsKey('notification_title'))
               snapshot.data.setString('notification_title', "Default title");
 
-            if(!snapshot.data.containsKey('notification_description'))
-              snapshot.data.setString('notification_description', "Default description");
+            if (!snapshot.data.containsKey('notification_description'))
+              snapshot.data
+                  .setString('notification_description', "Default description");
 
             return ListView(
               children: ListTile.divideTiles(context: context, tiles: [
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Text(
+                    "Vibration settings",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 22,
+                    ),
+                  ),
+                ),
                 SettingsContainer(
                   icon: Icons.vibration,
                   title: "Vibrations after start",
@@ -139,16 +150,38 @@ class SettingsRoute extends StatelessWidget {
                 ),
                 SettingsContainer(
                   icon: Icons.vibration,
-                  title: "Vibrations after stop",
+                  title: "Vibrations after end",
                   isSwitch: true,
                   switchState: snapshot.data.getBool('vibration_end'),
                   settingName: "vibration_end",
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Notification settings",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 22,
+                        ),
+                      ),
+                      Text(
+                        "You can design your own notification look.\nNotification pops out at the begining of recording.\nClicking on it stops recording.",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w300,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
                 SettingsContainer(
                   icon: Icons.image,
                   title: "Notification icon",
-                  additionalIcon:
-                  Icon(IconData(snapshot.data.getInt("notification_icon"),
+                  additionalIcon: Icon(IconData(
+                      snapshot.data.getInt("notification_icon"),
                       fontFamily: 'MaterialIcons')),
                   onTap: changeIcon,
                   settingName: "notification_icon",
@@ -163,15 +196,14 @@ class SettingsRoute extends StatelessWidget {
                 SettingsContainer(
                   icon: Icons.description,
                   title: "Notification description",
-                  description: snapshot.data.getString(
-                      "notification_description"),
+                  description:
+                      snapshot.data.getString("notification_description"),
                   onTap: changeDescription,
                   settingName: "notification_description",
                 ),
               ]).toList(),
             );
-          }
-          else
+          } else
             return Center();
         },
       ),
