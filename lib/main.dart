@@ -152,9 +152,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     var timerService = TimerService.of(context);
 
-    return DefaultTabController(
-      length: 2,
-      child: new Scaffold(
+      return Scaffold(
         appBar: AppBar(
           title: Text("Spy Camera"),
           actions: <Widget>[
@@ -169,21 +167,11 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
               },
             ),
           ],
-          bottom: TabBar(tabs: [
-            Tab(
-              icon: Icon(Icons.videocam),
-            ),
-            Tab(
-              icon: Icon(Icons.mic),
-            ),
-          ]),
         ),
-            body: TabBarView(children: [
-              new Container(
-                    child: AnimatedBuilder(
+            body: Center(
+              child: AnimatedBuilder(
                       animation: timerService,
                       builder: (context, child) {
-                        if (!MicIsRunning) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
@@ -210,8 +198,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   }
                                 },
                                 child: Text(!timerService.isRunning
-                                    ? 'Start Cam'
-                                    : 'Stop Cam'),
+                                    ? 'START'
+                                    : 'PAUSE'),
                               ),
                               RaisedButton(
                                 onPressed: () {
@@ -219,68 +207,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                                   hideNotification();
                                   CamIsRunning = false;
                                 },
-                                child: Text('Reset Cam'),
+                                child: Text('STOP'),
                               ),
                             ],
                           );
-                        } else {
-                          return Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text('Mic ON. Reset mic to start Cam')
-                              ]);
-                        }
                       },
                     ),
               ),
-              new Container(
-                child: AnimatedBuilder(
-                  animation: timerService,
-                  builder: (context, child) {
-                    if (!CamIsRunning) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                              'Mic time: ${timerService.currentDuration
-                                  .inHours % 60}h : ${timerService
-                                  .currentDuration.inMinutes %
-                                  60}m : ${timerService.currentDuration
-                                  .inSeconds % 60}s'),
-                          RaisedButton(
-                              onPressed: () {
-                                !timerService.isRunning
-                                    ? timerService.start()
-                                    : timerService.stop();
-                                if (timerService.isRunning) {
-                                  MicIsRunning = true;
-                                }
-                              },
-                              child: Text(!timerService.isRunning
-                                  ? 'Start Mic'
-                                  : 'Stop Mic')),
-                          RaisedButton(
-                            onPressed: () {
-                              timerService.reset();
-                              MicIsRunning = false;
-                            },
-                            child: Text('Reset Mic'),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text('Cam ON. Reset cam to start Mic')
-                          ]);
-                    }
-                  },
-                ),
-              ),
-            ])
-      ),
-    );
+      );
+
   }
 
   @override
