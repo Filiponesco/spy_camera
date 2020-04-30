@@ -22,6 +22,7 @@ dependencies:
   provider:
   video_player: ^0.10.9+1
   toast: ^0.1.5
+  provider: ^4.0.5+1
   flutter:
     sdk: flutter
 

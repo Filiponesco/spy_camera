@@ -107,6 +107,16 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.4"
+<<<<<<< Updated upstream
+=======
+  intl:
+    dependency: "direct main"
+    description:
+      name: intl
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.16.1"
+>>>>>>> Stashed changes
   matcher:
     dependency: transitive
     description:
@@ -128,6 +138,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.4"
+<<<<<<< Updated upstream
   outline_material_icons:
     dependency: transitive
     description:
@@ -135,6 +146,8 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.1"
+=======
+>>>>>>> Stashed changes
   path:
     dependency: transitive
     description:
@@ -142,6 +155,7 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.4"
+<<<<<<< Updated upstream
   path_provider:
     dependency: "direct main"
     description:
@@ -163,6 +177,8 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+=======
+>>>>>>> Stashed changes
   pedantic:
     dependency: transitive
     description:
@@ -197,7 +213,11 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
+<<<<<<< Updated upstream
     version: "4.0.5"
+=======
+    version: "4.0.5+1"
+>>>>>>> Stashed changes
   quiver:
     dependency: transitive
     description:
@@ -330,5 +350,9 @@ packages:
     source: hosted
     version: "3.5.0"
 sdks:
+<<<<<<< Updated upstream
   dart: ">=2.4.0 <3.0.0"
+=======
+  dart: ">=2.5.0 <3.0.0"
+>>>>>>> Stashed changes
   flutter: ">=1.12.13+hotfix.5 <2.0.0"
