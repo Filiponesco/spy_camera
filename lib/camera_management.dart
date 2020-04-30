@@ -30,6 +30,7 @@ class CameraManagement extends ChangeNotifier {
 
   set camPos (CameraPosition value){
     this._camPos = value;
+    notifyListeners(); //notify that controller is not initialize
     _changeCamera();
   }
   CameraPosition get camPos{
@@ -45,6 +46,7 @@ class CameraManagement extends ChangeNotifier {
   }
   Future<void> _changeCamera() async{
     controller = CameraController(cameras[camPos.index], ResolutionPreset.medium);
+    print("controller ${controller.toString()}");
     await controller.initialize();
     notifyListeners();
   }

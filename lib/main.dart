@@ -112,7 +112,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   void _showAlertDialog(String title, String message) {
     showDialog(
         context: context,
-        builder: (context) => GestureDetector(
+        builder: (context) =>
+            GestureDetector(
               onTap: () => Navigator.pop(context),
               child: AlertDialog(
                 title: Text(title),
@@ -169,8 +170,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       await camStatus.resumeVideoRecording();
       var timerService = TimerService.of(context);
       //if (timerService.isRunning) {
-        CamIsRunning = true;
-        timerService.start();
+      CamIsRunning = true;
+      timerService.start();
       //}
     } on CameraException catch (error) {
       _showAlertDialog(error.code, error.description);
@@ -241,51 +242,59 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-            Text(_nameCam[camStatus.camPos]),
-            RaisedButton(
-                child: Text("Change camera"),
-                onPressed: (camStatus.controller.value.isRecordingVideo ||
-                        camStatus.controller.value.isRecordingPaused)
-                    ? null
-                    : () => _onClickChangeCamera()),
-            SizedBox(height: 30),
-            Center(
-              child: AnimatedBuilder(
-                animation: timerService,
-                builder: (context, child) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                          'Cam time: ${timerService.currentDuration.inHours % 60}h : ${timerService.currentDuration.inMinutes % 60}m : ${timerService.currentDuration.inSeconds % 60}s'),
-                      RaisedButton(
-                        onPressed: () => _onClickStartPause(),
-                        child:
+                Text(_nameCam[camStatus.camPos]),
+                RaisedButton(
+                    child: Text("Change camera"),
+                    onPressed: (camStatus.controller.value.isRecordingVideo ||
+                        camStatus.controller.value.isRecordingPaused ||
+                        !camStatus.controller.value.isInitialized)
+                        ? null
+                        : () => _onClickChangeCamera()),
+                SizedBox(height: 30),
+                Center(
+                  child: AnimatedBuilder(
+                    animation: timerService,
+                    builder: (context, child) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                              'Cam time: ${timerService.currentDuration
+                                  .inHours % 60}h : ${timerService
+                                  .currentDuration.inMinutes %
+                                  60}m : ${timerService.currentDuration
+                                  .inSeconds % 60}s'),
+                          RaisedButton(
+                            onPressed: !camStatus.controller.value.isInitialized
+                                ? null
+                                : () => _onClickStartPause(),
+                            child:
                             Text(!timerService.isRunning ? 'START' : 'PAUSE'),
-                      ),
-                      RaisedButton(
-                        onPressed: () {
-                          _onClickStop();
-                        },
-                        child: Text('STOP'),
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ]);
+                          ),
+                          RaisedButton(
+                            onPressed: !camStatus.controller.value.isInitialized
+                                ? null
+                                : () => _onClickStop(),
+                            child: Text('STOP'),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ]);
         }
       }),
     );
   }
-  Widget _loadingCameras(){
+
+  Widget _loadingCameras() {
     return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             CircularProgressIndicator(),
-            SizedBox(height:10),
+            SizedBox(height: 10),
             Text("Loading cameras"),
             Text("Please wait"),
           ],
