@@ -19,10 +19,12 @@ environment:
 dependencies:
   vibration: ^1.2.4
   camera: ^0.5.7+4
-  downloads_path_provider: ^0.1.0
+#  downloads_path_provider: ^0.1.0
+#  path_provider: ^1.6.7
   intl: ^0.16.1
   toast: ^0.1.5
   provider: ^4.0.5+1
+  path_provider: ^1.6.7
   flutter:
     sdk: flutter
 

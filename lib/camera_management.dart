@@ -1,8 +1,8 @@
 import 'package:camera/camera.dart';
-import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 
@@ -19,14 +19,13 @@ class CameraManagement extends ChangeNotifier {
     _cameraManagement._setupCameras();
     return _cameraManagement;
   }
-
   CameraManagement._internal();
 
-  CameraController controller;
   SharedPreferences _prefs;
-  Function(String message) informUICallback;
-  List<CameraDescription> cameras;
   CameraPosition _camPos = CameraPosition.back;
+  List<CameraDescription> cameras;
+  CameraController controller;
+  Function(String message) informUICallback;
 
   set camPos (CameraPosition value){
     this._camPos = value;
@@ -41,7 +40,7 @@ class CameraManagement extends ChangeNotifier {
     cameras = await availableCameras();
     controller = CameraController(cameras[camPos.index], ResolutionPreset.medium);
     await controller.initialize();
-    _prefs = await SharedPreferences.getInstance();
+    //_prefs = await SharedPreferences.getInstance();
     notifyListeners();
   }
   Future<void> _changeCamera() async{
@@ -69,7 +68,8 @@ class CameraManagement extends ChangeNotifier {
       }
       if(_isVibrate("end")) _vibrate(200);
       await controller.stopVideoRecording();
-      informUICallback("Movie saved to download folder");
+
+      informUICallback("Movie saved");
       notifyListeners();
   }
   Future<void> pauseVideoRecording() async{
@@ -94,13 +94,15 @@ class CameraManagement extends ChangeNotifier {
   }
 
   Future<String> get _getVideoPath async {
-    final directory = await DownloadsPathProvider.downloadsDirectory;
+    //final directory = await DownloadsPathProvider.downloadsDirectory;
+    final directory = await getExternalStorageDirectory();
+    //final directory = await getTemporaryDirectory();
     var now = new DateTime.now();
     await initializeDateFormatting('pl_PL', null);
     var formatterData = new DateFormat('yyyy-MM-dd-hh-mm-ss');
     String formattedData = formatterData.format(now);
     final path = '${directory.path}/$formattedData.mp4';
-    print("Save movie to: $path");
+    print("Will save temp movie to: $path");
     return path;
   }
 
@@ -115,9 +117,11 @@ class CameraManagement extends ChangeNotifier {
   }
 
   bool _isVibrate(String when) {
-    if (_prefs.getBool('vibration_$when') != null) {
-      if (_prefs.getBool('vibration_$when'))
-        return true;
+    if(_prefs != null) {
+      if (_prefs.getBool('vibration_$when') != null) {
+        if (_prefs.getBool('vibration_$when'))
+          return true;
+      }
     }
     return false;
   }

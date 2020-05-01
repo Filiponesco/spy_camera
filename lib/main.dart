@@ -217,6 +217,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     var timerService = TimerService.of(context);
+    var camStatus = Provider.of<CameraManagement>(context, listen: false);
+    camStatus.informUICallback = _showToast;
     return Scaffold(
       appBar: AppBar(
         title: Text("Spy Camera"),
@@ -234,7 +236,6 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         ],
       ),
       body: Consumer<CameraManagement>(builder: (context, camStatus, child) {
-        camStatus.informUICallback = _showToast;
         //waiting for cameras
         if (camStatus.controller == null)
           return _loadingCameras();

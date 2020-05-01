@@ -201,7 +201,28 @@ class SettingsRoute extends StatelessWidget {
                   onTap: changeDescription,
                   settingName: "notification_description",
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(15.0),
+                  child: Text(
+                    "Information",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 22,
+                    ),
+                  ),
+                ),
+                SettingsContainer(
+                  icon: Icons.movie,
+                  title: "Storage location video",
+                  description: "To hide videos, folder is located here:\n /internal/Android/data\n/com.example.spycamera/files\n",
+                ),
+                SettingsContainer(
+                  icon: Icons.info,
+                  title: "Authors",
+                  description: "Mateusz Adamek, Piotr Białas,\nArkadiusz Datka, Filip Gaweł",
+                ),
               ]).toList(),
+
             );
           } else
             return Center();
